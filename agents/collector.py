@@ -1,17 +1,7 @@
 import os
 import pandas as pd
-from crewai import Agent, LLM
-from dotenv import load_dotenv
-
-# Load environment variables from .env file
-load_dotenv()
-
-# ─── Setup the LLM (Groq - Free) ─────────────────────────────────────────────
-# This is the "brain" behind our agent — using LLaMA 3 via Groq (free)
-llm = LLM(
-    model="groq/llama-3.1-8b-instant",
-    api_key=os.getenv("GROQ_API_KEY")
-)
+from crewai import Agent
+from agents.llm_config import llm
 
 # ─── Load the Dataset ─────────────────────────────────────────────────────────
 # Get the path to our CSV file
