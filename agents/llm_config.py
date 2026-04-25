@@ -10,5 +10,6 @@ load_dotenv()
 llm = LLM(
     model="groq/llama-3.1-8b-instant",
     api_key=os.getenv("GROQ_API_KEY"),
-    max_tokens=1024        # Cap output per call — reduces TPM usage on Groq free tier
+    max_tokens=1024,
+    max_retries=6           # Auto-retry on rate limit with exponential backoff
 )

@@ -1,0 +1,177 @@
+RESERVE BANK OF INDIA
+CREDIT RISK COMPLIANCE GUIDELINES FOR RETAIL LENDING
+(Based on RBI Master Circular - Fair Practices Code for Lenders | RBI/2015-16/70)
+(Based on RBI Master Direction - Credit Card and Retail Lending Directions, 2022)
+(Based on RBI Guidelines on Credit Risk Management for Banks, 2023)
+
+Compiled Reference Document for Internal Compliance Use
+================================================================
+
+
+SECTION 1: BORROWER ELIGIBILITY CRITERIA
+-----------------------------------------
+
+1.1 AGE REQUIREMENTS
+- Minimum age of borrower at loan origination: 21 years
+- Maximum age of borrower at loan maturity: 65 years (salaried), 70 years (self-employed)
+- Borrowers below 21 years are NOT eligible for retail credit products.
+- Borrowers above 60 years must provide succession documentation.
+- Note: Age 18-20 may be eligible for microfinance products only, not standard retail credit.
+
+1.2 EMPLOYMENT AND INCOME STABILITY
+- Borrowers must demonstrate stable and verifiable income.
+- Skilled and Highly Skilled employment categories are preferred for unsecured credit.
+- Unskilled (non-resident) borrowers require additional collateral or guarantor.
+- Unskilled (resident) borrowers may be eligible for secured loans only.
+- Self-employed borrowers must provide 2 years of ITR (Income Tax Returns).
+- Minimum employment continuity: 1 year in current job for salaried borrowers.
+
+1.3 HOUSING STABILITY
+- Borrowers with own housing are considered LOW risk on residential stability parameter.
+- Borrowers in rented accommodation are considered MODERATE risk.
+- Borrowers with free accommodation (living with family) require additional income verification.
+- Housing type must be consistent with declared income and credit amount requested.
+
+
+SECTION 2: CREDIT AMOUNT AND DURATION LIMITS
+----------------------------------------------
+
+2.1 CREDIT AMOUNT LIMITS BY EMPLOYMENT TYPE
+- Highly Skilled borrowers     : Up to 50,000 DM (or equivalent) unsecured
+- Skilled borrowers            : Up to 20,000 DM unsecured; up to 40,000 DM with collateral
+- Unskilled (resident)         : Up to 5,000 DM with guarantor
+- Unskilled (non-resident)     : Maximum 2,000 DM; collateral mandatory
+
+2.2 LOAN DURATION LIMITS
+- Minimum loan duration: 6 months
+- Maximum loan duration for consumer goods (radio/TV, furniture): 36 months
+- Maximum loan duration for car loans: 60 months
+- Maximum loan duration for business/repairs: 48 months
+- Maximum loan duration for education: 84 months
+- Maximum loan duration for domestic appliances: 24 months
+- Loans exceeding these duration limits require documented justification.
+
+2.3 CREDIT AMOUNT TO SAVINGS RATIO
+- Borrowers with 'little' savings: Credit amount must not exceed 5,000 DM unsecured.
+- Borrowers with 'moderate' savings: Credit amount up to 15,000 DM.
+- Borrowers with 'quite rich' savings: Credit amount up to 30,000 DM.
+- Borrowers with 'rich' savings: Credit amount up to 50,000 DM.
+- Any deviation from these thresholds requires senior credit officer approval.
+
+2.4 CHECKING ACCOUNT AND CREDIT ASSESSMENT
+- Borrowers with 'little' checking account balance: HIGH risk flag; requires additional review.
+- Borrowers with 'moderate' checking account: MODERATE risk; standard underwriting applies.
+- Borrowers with 'rich' checking account: LOW risk; expedited processing permitted.
+- No checking account (NA): Mandatory branch verification before loan sanction.
+
+
+SECTION 3: LOAN PURPOSE GUIDELINES
+------------------------------------
+
+3.1 APPROVED LOAN PURPOSES AND RISK CLASSIFICATION
+- car              : MODERATE risk — asset-backed, standard processing
+- furniture        : LOW-MODERATE risk — essential asset, standard processing
+- radio/TV         : MODERATE-HIGH risk — depreciating asset, short duration preferred
+- domestic appliances: LOW-MODERATE risk — essential, standard processing
+- repairs          : LOW risk — property improvement, acceptable collateral
+- education        : LOW risk — productive investment, long duration permitted
+- business         : MODERATE-HIGH risk — requires business plan and projections
+- vacation         : HIGH risk — no asset backing, strict scrutiny required
+- retraining       : LOW-MODERATE risk — productive investment
+
+3.2 PURPOSE-SPECIFIC COMPLIANCE FLAGS
+- Radio/TV loans exceeding 36 months duration: FLAG for senior review.
+- Vacation loans exceeding 12 months duration: REJECT automatically.
+- Business loans must have documented business plan on file.
+- Education loans for borrowers below 21: Require co-borrower (parent/guardian).
+
+
+SECTION 4: RISK CLASSIFICATION FRAMEWORK
+------------------------------------------
+
+4.1 OVERALL RISK SCORING (INTERNAL USE)
+Banks must classify retail borrowers into one of three categories:
+
+GOOD RISK (Low Default Probability):
+- Age: 30-55 years
+- Employment: Skilled or Highly Skilled
+- Housing: Own
+- Savings: Moderate, Quite Rich, or Rich
+- Checking Account: Moderate or Rich
+- Credit Amount: Within savings-ratio limits
+- Duration: Within purpose-specific limits
+- Purpose: Education, repairs, car, furniture, domestic appliances
+
+BAD RISK (High Default Probability):
+- Age: Below 25 or above 60
+- Employment: Unskilled (resident or non-resident)
+- Housing: Rent or Free
+- Savings: Little or NA
+- Checking Account: Little or NA
+- Credit Amount: Exceeds savings-ratio thresholds
+- Duration: Exceeds purpose-specific limits
+- Purpose: Vacation, business (without plan)
+
+MODERATE RISK:
+- Borrowers who do not clearly fall into GOOD or BAD categories.
+- Mixed profile indicators requiring holistic assessment.
+
+
+SECTION 5: FAIR PRACTICES CODE — MANDATORY OBLIGATIONS
+---------------------------------------------------------
+
+5.1 TRANSPARENCY REQUIREMENTS (RBI/2015-16/70, Para 3)
+- Lenders must clearly communicate the basis for credit decisions to applicants.
+- Rejection reasons must be communicated in writing within 30 days.
+- Interest rates and all charges must be disclosed upfront before loan sanction.
+- No hidden charges are permitted.
+
+5.2 NON-DISCRIMINATION POLICY (RBI Master Circular, Para 5)
+- Credit decisions must NOT be influenced by borrower's sex/gender.
+- Credit decisions must NOT be based on religion, caste, or community.
+- Only financial and credit-risk-relevant parameters may be used in assessment.
+- Sex/Gender field in applicant profile must NOT be used as a risk factor.
+
+5.3 DATA PRIVACY AND DOCUMENTATION
+- All applicant data must be stored securely per RBI cybersecurity guidelines.
+- KYC documentation must be collected and verified before loan disbursement.
+- Loan files must be retained for a minimum of 8 years post loan closure.
+
+5.4 GRIEVANCE REDRESSAL
+- All lenders must have a documented grievance redressal mechanism.
+- Customer complaints must be resolved within 30 days.
+- Escalation to Banking Ombudsman is available to customers if unresolved.
+
+
+SECTION 6: COMPLIANCE CHECKLIST FOR CREDIT OFFICERS
+------------------------------------------------------
+
+Before sanctioning any retail loan, the following must be verified:
+
+[ ] Borrower age is between 21 and 65 years (salaried) or 70 years (self-employed)
+[ ] Employment type is documented and verified
+[ ] Credit amount is within the savings-ratio threshold for borrower's savings category
+[ ] Loan duration does not exceed the purpose-specific maximum
+[ ] Housing status is documented
+[ ] Checking account status is verified
+[ ] Loan purpose is an approved category
+[ ] Non-discrimination compliance confirmed (sex/gender not used as risk factor)
+[ ] KYC documentation collected
+[ ] Interest rate and charges disclosed in writing
+
+
+SECTION 7: REGULATORY PENALTIES FOR NON-COMPLIANCE
+-----------------------------------------------------
+
+- Failure to disclose interest rates: Fine up to INR 1 Crore per instance
+- Discriminatory lending practices: License suspension risk
+- Exceeding approved credit limits without documentation: Regulatory censure
+- Failure to resolve customer complaints: Fine up to INR 50 Lakhs
+- Data privacy breach: Action under IT Act + RBI penalties
+
+
+================================================================
+END OF DOCUMENT
+Source: Reserve Bank of India Regulatory Framework
+Reference: RBI/2015-16/70 | RBI Master Direction 2022 | RBI Credit Risk Guidelines 2023
+================================================================

@@ -2,6 +2,9 @@ from crewai import Task
 from agents.collector import data_collector_agent, get_applicant_data
 from agents.validator import data_validator_agent
 from agents.market_analyst import market_analyst_agent
+from agents.compliance import compliance_agent
+from agents.evaluator import risk_evaluator_agent
+from agents.reporter import report_writer_agent
 
 def create_collection_task(applicant_id: int) -> Task:
     """
@@ -51,10 +54,11 @@ def create_market_analysis_task() -> Task:
             "You are the Market & Economic Risk Analyst. Your job is to assess "
             "the current macroeconomic environment and its implications for "
             "credit risk in the BFSI sector.\n\n"
-            "Step 1 — USE YOUR TOOL:\n"
-            "Call the 'FRED Macroeconomic Data Fetcher' tool to retrieve the "
-            "latest values for: Unemployment Rate, Inflation (CPI), Real GDP, "
-            "and Federal Funds Rate.\n\n"
+            "Step 1 — USE YOUR TOOL (call it EXACTLY ONCE):\n"
+            "Call the 'FRED Macroeconomic Data Fetcher' tool ONE time only, "
+            "using 'fetch all indicators' as the query string. The tool will "
+            "return ALL four indicators in a single response. Do NOT call the "
+            "tool multiple times or with individual series names.\n\n"
             "Step 2 — INTERPRET EACH INDICATOR:\n"
             "For each indicator, state:\n"
             "  - The current value and what it means\n"
@@ -77,6 +81,67 @@ def create_market_analysis_task() -> Task:
             "a 2-3 sentence economic summary, and one credit policy recommendation."
         ),
         agent=market_analyst_agent
+    )
+
+
+def create_compliance_task(applicant_id: int) -> Task:
+    """
+    Creates the RBI compliance check task.
+    Agent 4 uses RAG to retrieve relevant RBI rules and checks each
+    field of the applicant profile for regulatory violations.
+    Applicant profile is injected directly to avoid hallucination.
+    """
+    applicant_data, _ = get_applicant_data(applicant_id)
+    return Task(
+        description=(
+            f"You are the RBI Regulatory Compliance Officer. Here is the loan "
+            f"applicant profile you must check:\n\n{applicant_data}\n\n"
+            "Your job is to check this profile against RBI credit compliance "
+            "guidelines using your RAG retrieval tool.\n\n"
+            "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+            "STEP 1 — RETRIEVE RULES (use tool 3 times only)\n"
+            "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+            "Call the 'RBI Compliance Rules Retriever' tool exactly 3 times:\n"
+            "  1. 'age eligibility minimum maximum loan borrower'\n"
+            "  2. 'credit amount limit savings account duration purpose'\n"
+            "  3. 'gender sex discrimination employment unskilled'\n\n"
+            "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+            "STEP 2 — CHECK EACH FIELD AGAINST RETRIEVED RULES\n"
+            "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+            "For each field, state:\n"
+            "  - The applicant's value\n"
+            "  - The applicable RBI rule (retrieved above)\n"
+            "  - Status: ✅ COMPLIANT or ❌ VIOLATION\n"
+            "  - If VIOLATION: quote the exact rule being breached\n\n"
+            "Check these fields using retrieved rules EXACTLY:\n\n"
+            "  CHECK 1 — Age: Compare applicant's age against RBI minimum (21).\n"
+            "    If age >= 21, it is COMPLIANT. Do NOT flag age >= 21 as violation.\n\n"
+            "  CHECK 2 — Job Type: Verify employment type meets RBI requirements.\n\n"
+            "  CHECK 3 — Credit Amount vs Savings: Compare credit amount against\n"
+            "    the savings-ratio limit for the applicant's savings category.\n"
+            "    Flag as VIOLATION only if credit amount exceeds the limit.\n\n"
+            "  CHECK 4 — Duration vs Purpose: Compare loan duration against the\n"
+            "    maximum allowed months for the stated loan purpose.\n"
+            "    Flag as VIOLATION only if duration exceeds the limit.\n\n"
+            "  CHECK 5 — Sex/Gender: The non-discrimination rule means gender must\n"
+            "    NOT be used as a risk factor in the lending DECISION.\n"
+            "    Recording gender as data is NOT a violation. Mark as COMPLIANT.\n\n"
+            "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+            "STEP 3 — FINAL COMPLIANCE VERDICT\n"
+            "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+            "  - Total violations found: X\n"
+            "  - Overall verdict: COMPLIANT or NON-COMPLIANT\n"
+            "  - One-line recommendation for the credit officer\n\n"
+            "IMPORTANT: Base every judgement ONLY on rules retrieved from "
+            "your tool. Currency is DM, not rupees."
+        ),
+        expected_output=(
+            "A structured RBI compliance report with: rules retrieved per "
+            "field, COMPLIANT/VIOLATION status for each field with rule "
+            "citations, total violation count, overall COMPLIANT/NON-COMPLIANT "
+            "verdict, and one-line recommendation for the credit officer."
+        ),
+        agent=compliance_agent
     )
 
 
@@ -138,4 +203,158 @@ def create_validation_task() -> Task:
             "one-line summary."
         ),
         agent=data_validator_agent
+    )
+
+
+def create_risk_evaluation_task(applicant_id: int) -> Task:
+    """
+    Creates the final risk evaluation task.
+    Agent 5 synthesizes outputs from all 4 previous agents and delivers
+    a final GOOD / BAD credit risk verdict with full justification.
+    """
+    applicant_data, _ = get_applicant_data(applicant_id)
+    return Task(
+        description=(
+            f"You are the Senior Credit Risk Evaluator. Here is the applicant "
+            f"profile under assessment:\n\n{applicant_data}\n\n"
+            "You have received reports from 4 specialist agents before you:\n"
+            "  - Agent 1: Data Collector (applicant profile)\n"
+            "  - Agent 2: Data Validator (data quality score & anomalies)\n"
+            "  - Agent 3: Market Analyst (macroeconomic risk level)\n"
+            "  - Agent 4: Compliance Officer (RBI violations)\n\n"
+            "Your job is to synthesize ALL of this into a final risk verdict.\n\n"
+            "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+            "STEP 1 — RISK FACTOR SCORECARD\n"
+            "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+            "Score each factor as LOW / MODERATE / HIGH risk:\n\n"
+            "  APPLICANT FACTORS (from Agent 1 & 2):\n"
+            "  ┌─────────────────────────┬───────────────┬──────────────────────────┐\n"
+            "  │ Factor                  │ Value         │ Risk Level               │\n"
+            "  ├─────────────────────────┼───────────────┼──────────────────────────┤\n"
+            "  │ Age                     │ [value]       │ LOW / MODERATE / HIGH    │\n"
+            "  │ Employment Stability    │ [value]       │ LOW / MODERATE / HIGH    │\n"
+            "  │ Savings Level           │ [value]       │ LOW / MODERATE / HIGH    │\n"
+            "  │ Checking Account        │ [value]       │ LOW / MODERATE / HIGH    │\n"
+            "  │ Credit Amount           │ [value]       │ LOW / MODERATE / HIGH    │\n"
+            "  │ Loan Duration           │ [value]       │ LOW / MODERATE / HIGH    │\n"
+            "  │ Loan Purpose            │ [value]       │ LOW / MODERATE / HIGH    │\n"
+            "  │ Data Quality Score      │ [score]/10    │ LOW / MODERATE / HIGH    │\n"
+            "  └─────────────────────────┴───────────────┴──────────────────────────┘\n\n"
+            "  EXTERNAL FACTORS (from Agent 3 & 4):\n"
+            "  ┌─────────────────────────┬───────────────┬──────────────────────────┐\n"
+            "  │ Factor                  │ Value         │ Risk Level               │\n"
+            "  ├─────────────────────────┼───────────────┼──────────────────────────┤\n"
+            "  │ Macro Risk Level        │ [level]       │ LOW / MODERATE / HIGH    │\n"
+            "  │ RBI Compliance Status   │ [status]      │ LOW / MODERATE / HIGH    │\n"
+            "  │ No. of Violations       │ [count]       │ LOW / MODERATE / HIGH    │\n"
+            "  └─────────────────────────┴───────────────┴──────────────────────────┘\n\n"
+            "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+            "STEP 2 — FINAL RISK VERDICT\n"
+            "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+            "  Overall Risk Verdict  : GOOD / BAD\n"
+            "  Confidence Level      : LOW / MEDIUM / HIGH\n"
+            "  Primary Risk Drivers  : [top 3 reasons for your verdict]\n"
+            "  Mitigating Factors    : [any factors that reduce risk]\n\n"
+            "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+            "STEP 3 — RECOMMENDATION\n"
+            "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+            "  Decision       : APPROVE / REJECT / CONDITIONAL APPROVE\n"
+            "  Conditions     : (if conditional) list specific conditions\n"
+            "  One-line note  : For the credit committee record\n\n"
+            "IMPORTANT: Your verdict must be either GOOD or BAD — no middle ground. "
+            "Use all previous agent outputs visible in your context to justify it."
+        ),
+        expected_output=(
+            "A structured risk evaluation with: completed Risk Factor Scorecard "
+            "table, final GOOD/BAD verdict with confidence level and top 3 risk "
+            "drivers, and a clear APPROVE/REJECT/CONDITIONAL APPROVE decision "
+            "with one-line note for the credit committee."
+        ),
+        agent=risk_evaluator_agent
+    )
+
+
+def create_report_task(applicant_id: int) -> Task:
+    """
+    Creates the final report writing task.
+    Agent 6 compiles all previous agent outputs into a single professional
+    Credit Assessment Report for the credit committee.
+    """
+    applicant_data, _ = get_applicant_data(applicant_id)
+    return Task(
+        description=(
+            f"You are the Credit Assessment Report Writer. Compile a final, "
+            f"professional Credit Assessment Report for the following applicant:\n\n"
+            f"{applicant_data}\n\n"
+            "Use ALL findings from the previous 5 agents visible in your context. "
+            "Write the report in the exact structure below:\n\n"
+
+            "════════════════════════════════════════════════════════════\n"
+            "        BFSI CREDIT RISK ASSESSMENT REPORT\n"
+            "════════════════════════════════════════════════════════════\n"
+            "Report Date        : [today's date]\n"
+            "Applicant ID       : [ID]\n"
+            "Assessment System  : BFSI Multi-Agent Credit Risk System v1.0\n"
+            "────────────────────────────────────────────────────────────\n\n"
+
+            "SECTION 1 — APPLICANT PROFILE SUMMARY\n"
+            "Present all 9 fields in a clean two-column format.\n\n"
+
+            "SECTION 2 — DATA QUALITY ASSESSMENT\n"
+            "  Data Quality Score    : X/10\n"
+            "  Missing Fields        : None / [list]\n"
+            "  Anomalies Flagged     : [list or None]\n"
+            "  Assessment            : [one line]\n\n"
+
+            "SECTION 3 — MACROECONOMIC CONTEXT\n"
+            "  Macro Risk Level      : LOW / MODERATE / HIGH\n"
+            "  Key Indicators        : [unemployment, inflation, GDP, rate]\n"
+            "  Credit Policy Note    : [one line from Agent 3]\n\n"
+
+            "SECTION 4 — RBI COMPLIANCE STATUS\n"
+            "  Overall Status        : COMPLIANT / NON-COMPLIANT\n"
+            "  Violations Found      : [count]\n"
+            "  Violation Details     : [list each violation clearly]\n\n"
+
+            "SECTION 5 — RISK EVALUATION SUMMARY\n"
+            "  ┌─────────────────────────┬───────────────┬────────────┐\n"
+            "  │ Factor                  │ Value         │ Risk Level │\n"
+            "  ├─────────────────────────┼───────────────┼────────────┤\n"
+            "  │ Age                     │ [value]       │ [level]    │\n"
+            "  │ Employment Stability    │ [value]       │ [level]    │\n"
+            "  │ Savings Level           │ [value]       │ [level]    │\n"
+            "  │ Checking Account        │ [value]       │ [level]    │\n"
+            "  │ Credit Amount           │ [value]       │ [level]    │\n"
+            "  │ Loan Duration           │ [value]       │ [level]    │\n"
+            "  │ Loan Purpose            │ [value]       │ [level]    │\n"
+            "  │ Macro Environment       │ [value]       │ [level]    │\n"
+            "  │ Compliance Status       │ [value]       │ [level]    │\n"
+            "  └─────────────────────────┴───────────────┴────────────┘\n\n"
+            "  Overall Risk Verdict  : GOOD / BAD\n"
+            "  Confidence Level      : LOW / MEDIUM / HIGH\n"
+            "  Primary Risk Drivers  : [top 3 reasons]\n\n"
+
+            "SECTION 6 — FINAL DECISION\n"
+            "  ┌─────────────────────────────────────────────────────┐\n"
+            "  │  DECISION: APPROVE / REJECT / CONDITIONAL APPROVE   │\n"
+            "  └─────────────────────────────────────────────────────┘\n"
+            "  Rationale  : [2-3 sentences explaining the decision]\n"
+            "  Conditions : [if conditional — list conditions, else N/A]\n\n"
+
+            "────────────────────────────────────────────────────────────\n"
+            "DISCLAIMER: This report is generated by an AI-based multi-agent\n"
+            "system for decision-support purposes only. Final credit decisions\n"
+            "must be reviewed and approved by a qualified credit officer as per\n"
+            "RBI guidelines.\n"
+            "════════════════════════════════════════════════════════════\n\n"
+
+            "IMPORTANT: Fill in every [placeholder] with actual values from "
+            "previous agent outputs. Do not leave any section blank."
+        ),
+        expected_output=(
+            "A complete, professional Credit Assessment Report with all 6 sections "
+            "filled in — applicant profile, data quality, macro context, compliance "
+            "status, risk scorecard, and final decision with rationale."
+        ),
+        agent=report_writer_agent
     )

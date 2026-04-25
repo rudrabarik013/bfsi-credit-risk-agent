@@ -1,0 +1,147 @@
+from crewai import Crew, Process, Task
+from agents.reporter import report_writer_agent
+
+# ─── Mock context — simulates all 5 previous agent outputs ────────────────────
+MOCK_ALL_AGENT_OUTPUTS = """
+APPLICANT PROFILE (ID: 1)
+=======================================
+Age              : 22
+Sex              : male
+Job Type         : Skilled
+Housing          : own
+Saving Accounts  : little
+Checking Account : moderate
+Credit Amount    : 5951 DM
+Duration         : 48 months
+Purpose          : radio/TV
+
+--- AGENT 2 (Data Validator) ---
+Data Quality Score: 8/10
+Missing Fields: None
+Anomalies:
+  - Age 22 with little savings and 5951 DM credit is unusual
+  - Loan duration 48 months is long for a radio/TV purchase
+
+--- AGENT 3 (Market Analyst) ---
+Macro Risk Level: MODERATE
+  Unemployment Rate : 4.3%   → LOW risk
+  Inflation YoY     : 3.29%  → LOW-MODERATE risk
+  Real GDP          : 24055B → MODERATE risk
+  Federal Funds Rate: 3.64%  → MODERATE risk
+Policy: Maintain current lending criteria.
+
+--- AGENT 4 (Compliance Officer) ---
+Overall Status: NON-COMPLIANT
+Violations Found: 2
+  VIOLATION 1: Credit Amount 5951 DM exceeds 5000 DM limit for 'little' savings
+  VIOLATION 2: Duration 48 months exceeds 36-month RBI maximum for radio/TV loans
+
+--- AGENT 5 (Risk Evaluator) ---
+Overall Risk Verdict : BAD
+Confidence Level     : HIGH
+Primary Risk Drivers :
+  1. Credit amount exceeds savings threshold — limited repayment buffer
+  2. Two RBI compliance violations — loan cannot be sanctioned as-is
+  3. Long duration for a depreciating consumer asset increases default exposure
+Mitigating Factors:
+  - Skilled employment provides income stability
+  - Owns housing — some asset backing
+Decision: REJECT
+"""
+
+# ─── Report Writing Task ──────────────────────────────────────────────────────
+report_task = Task(
+    description=(
+        f"You are the Credit Assessment Report Writer. Compile a final "
+        f"professional Credit Assessment Report using all agent findings below:"
+        f"\n\n{MOCK_ALL_AGENT_OUTPUTS}\n\n"
+        "Write the report in the exact structure below:\n\n"
+
+        "════════════════════════════════════════════════════════════\n"
+        "        BFSI CREDIT RISK ASSESSMENT REPORT\n"
+        "════════════════════════════════════════════════════════════\n"
+        "Report Date        : [today's date]\n"
+        "Applicant ID       : 1\n"
+        "Assessment System  : BFSI Multi-Agent Credit Risk System v1.0\n"
+        "────────────────────────────────────────────────────────────\n\n"
+
+        "SECTION 1 — APPLICANT PROFILE SUMMARY\n"
+        "Present all 9 fields in a clean two-column format.\n\n"
+
+        "SECTION 2 — DATA QUALITY ASSESSMENT\n"
+        "  Data Quality Score    : X/10\n"
+        "  Missing Fields        : None / [list]\n"
+        "  Anomalies Flagged     : [list or None]\n"
+        "  Assessment            : [one line]\n\n"
+
+        "SECTION 3 — MACROECONOMIC CONTEXT\n"
+        "  Macro Risk Level      : LOW / MODERATE / HIGH\n"
+        "  Key Indicators        : [unemployment, inflation, GDP, rate]\n"
+        "  Credit Policy Note    : [one line]\n\n"
+
+        "SECTION 4 — RBI COMPLIANCE STATUS\n"
+        "  Overall Status        : COMPLIANT / NON-COMPLIANT\n"
+        "  Violations Found      : [count]\n"
+        "  Violation Details     : [list each violation clearly]\n\n"
+
+        "SECTION 5 — RISK EVALUATION SUMMARY\n"
+        "  ┌─────────────────────────┬───────────────┬────────────┐\n"
+        "  │ Factor                  │ Value         │ Risk Level │\n"
+        "  ├─────────────────────────┼───────────────┼────────────┤\n"
+        "  │ Age                     │ 22 years      │ [level]    │\n"
+        "  │ Employment Stability    │ Skilled       │ [level]    │\n"
+        "  │ Savings Level           │ little        │ [level]    │\n"
+        "  │ Checking Account        │ moderate      │ [level]    │\n"
+        "  │ Credit Amount           │ 5951 DM       │ [level]    │\n"
+        "  │ Loan Duration           │ 48 months     │ [level]    │\n"
+        "  │ Loan Purpose            │ radio/TV      │ [level]    │\n"
+        "  │ Macro Environment       │ MODERATE      │ [level]    │\n"
+        "  │ Compliance Status       │ NON-COMPLIANT │ HIGH       │\n"
+        "  └─────────────────────────┴───────────────┴────────────┘\n\n"
+        "  Overall Risk Verdict  : BAD\n"
+        "  Confidence Level      : HIGH\n"
+        "  Primary Risk Drivers  : [top 3 from Agent 5]\n\n"
+
+        "SECTION 6 — FINAL DECISION\n"
+        "  ┌─────────────────────────────────────────────────────┐\n"
+        "  │  DECISION: APPROVE / REJECT / CONDITIONAL APPROVE   │\n"
+        "  └─────────────────────────────────────────────────────┘\n"
+        "  Rationale  : [2-3 sentences]\n"
+        "  Conditions : [if conditional — list, else N/A]\n\n"
+
+        "────────────────────────────────────────────────────────────\n"
+        "DISCLAIMER: This report is generated by an AI-based multi-agent\n"
+        "system for decision-support purposes only. Final credit decisions\n"
+        "must be reviewed and approved by a qualified credit officer as per\n"
+        "RBI guidelines.\n"
+        "════════════════════════════════════════════════════════════\n\n"
+        "Fill every [placeholder] with actual values. Do not skip any section."
+    ),
+    expected_output=(
+        "A complete Credit Assessment Report with all 6 sections filled — "
+        "applicant profile, data quality, macro context, compliance, "
+        "risk scorecard table, and final REJECT decision with rationale."
+    ),
+    agent=report_writer_agent
+)
+
+# ─── Mini Crew — Agent 6 only ──────────────────────────────────────────────────
+crew = Crew(
+    agents=[report_writer_agent],
+    tasks=[report_task],
+    process=Process.sequential,
+    verbose=True,
+    max_rpm=25
+)
+
+if __name__ == "__main__":
+    print("\n" + "="*60)
+    print("  AGENT 6 ISOLATED TEST — Credit Assessment Report Writer")
+    print("  Applicant ID: 1 | Expected Decision: REJECT")
+    print("="*60 + "\n")
+
+    result = crew.kickoff()
+
+    print("\n" + "="*60)
+    print("  AGENT 6 TEST COMPLETE — Final Report Generated")
+    print("="*60 + "\n")
