@@ -1,3 +1,5 @@
+import time
+import argparse
 from crewai import Crew, Process
 from agents.collector import data_collector_agent, get_applicant_data
 from agents.validator import data_validator_agent
@@ -14,15 +16,23 @@ from tasks.tasks import (
     create_report_task,
 )
 
-# ─── Choose which applicant to assess ────────────────────────────────────────
-APPLICANT_ID = 1
+# ─── Parse CLI argument for applicant ID ─────────────────────────────────────
+parser = argparse.ArgumentParser(description="BFSI Credit Risk Agent")
+parser.add_argument(
+    "--applicant_id",
+    type=int,
+    default=1,
+    help="Applicant ID to assess (1–1000). Default: 1"
+)
+args = parser.parse_args()
+APPLICANT_ID = args.applicant_id
 
 # ─── Get actual risk label for benchmarking ONLY ─────────────────────────────
 _, actual_risk_label = get_applicant_data(APPLICANT_ID)
 
 # ─── Create tasks ─────────────────────────────────────────────────────────────
 collection_task      = create_collection_task(APPLICANT_ID)
-validation_task      = create_validation_task()
+validation_task      = create_validation_task(APPLICANT_ID)
 market_analysis_task = create_market_analysis_task()
 compliance_task      = create_compliance_task(APPLICANT_ID)
 risk_evaluation_task = create_risk_evaluation_task(APPLICANT_ID)
@@ -48,7 +58,8 @@ crew = Crew(
     ],
     process=Process.sequential,
     verbose=True,
-    max_rpm=25
+    max_rpm=25,
+    task_callback=lambda _: time.sleep(60)  # 60s cooldown between agents — resets Groq TPM counter
 )
 
 # ─── Run ─────────────────────────────────────────────────────────────────────
